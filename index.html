@@ -923,7 +923,7 @@ let eng = new E(48000);                 // local mirror (display data, patches, 
 let ctx = null, node = null, mode = 'none', started = false;
 let song = null, songBytes = null, songName = 'YouAreInMySystem.mid';
 let playing = false, curT = 0, lastPosS = 0, lastPosAt = 0, rate = 1, voxInfo = [], meters = new Array(17).fill(0), scopeBuf = null;
-let editPatch = 0, loop = false;
+let editPatch = 2, loop = false;
 const chs = []; for (let i = 0; i < 16; i++) chs.push({ mute: false, solo: false, vol: 1, pan: 0, patch: E.DEFAULT_MAP[i] });
 let activeCh = [];
 
