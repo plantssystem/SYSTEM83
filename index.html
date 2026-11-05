@@ -1444,7 +1444,7 @@ drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) l
 /* ---------- pages / routing ---------- */
 const PAGES = ['sequence', 'wave', 'additive', 'sampler', 'mutate'];
 function routePage() {
-  const h = (location.hash || '').slice(1), pg = PAGES.includes(h) ? h : 'sequence';
+  const h = (location.hash || '').slice(1), pg = PAGES.includes(h) ? h : 'wave';
   PAGES.forEach(p => { $('#pg-' + p).classList.toggle('show', p === pg); });
   $$('nav.tabs a').forEach(a => { if (a.dataset.pg === pg) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
   wfDirty = true;
@@ -1519,8 +1519,8 @@ function frame(now) {
   requestAnimationFrame(frame); if (document.hidden) return; frameN++;
   if (song) { const adv = playing ? Math.min(0.08, (now - lastPosAt) / 1000) * rate : 0; curT = lastPosS + adv; if (curT > song.dur) curT = song.dur; }
   updateClock(curT); drawScope();
-  const pg = (location.hash || '#sequence').slice(1);
-  if (pg === 'sequence' || !PAGES.includes(pg)) {
+  const hh = (location.hash || '').slice(1), pg = PAGES.includes(hh) ? hh : 'wave';
+  if (pg === 'sequence') {
     drawRoll(); drawMini();
     $$('.strip').forEach(el => { const ch = +el.dataset.ch, v = meters[ch] || 0; $('.vu i', el).style.transform = 'scaleX(' + clamp(Math.sqrt(v) * 1.6, 0, 1).toFixed(3) + ')'; el.classList.toggle('hit', v > 0.01); });
   } else if (pg === 'wave') { if (wfDirty || voxInfo.length || frameN % 4 === 0) { drawWavePage(); wfDirty = false; } }
