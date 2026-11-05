@@ -80,6 +80,8 @@ body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-in
 /* ---------- app shell ---------- */
 #app { max-width: 1240px; margin: 0 auto; padding-block: max(10px, env(safe-area-inset-top, 0px)) 0; }
 .bar { display: grid; grid-template-columns: auto 1fr auto; gap: 12px 20px; align-items: center; padding: 8px 0 10px; border-bottom: 1px solid var(--line); }
+.brand { cursor: pointer; }
+.brand:hover h2 { color: var(--amber); }
 .brand h2 { font-size: 30px; color: var(--phos); line-height: .9; text-shadow: 0 0 10px rgba(116,255,168,.4); }
 .brand small { display: block; color: var(--mute); font-size: 11px; letter-spacing: .22em; margin-top: 2px; }
 .tport { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
@@ -215,7 +217,7 @@ input[type=range].amber::-moz-range-thumb { background: var(--amber); }
 
 <div id="app" hidden>
   <header class="bar">
-    <div class="brand"><h2>SYSTEM-83</h2><small>WAVETABLE &middot; SAMPLER &middot; DRUMS</small></div>
+    <div class="brand" id="brand" role="button" tabindex="0" title="Show splash" aria-label="SYSTEM-83, show splash screen"><h2>SYSTEM-83</h2><small>WAVETABLE &middot; SAMPLER &middot; DRUMS</small></div>
     <div class="tport">
       <button class="btn" id="bStop" title="Stop and rewind">&#9632; Stop</button>
       <button class="btn" id="bPlay" title="Play / pause (Space)">&#9654; Play</button>
@@ -336,7 +338,7 @@ input[type=range].amber::-moz-range-thumb { background: var(--amber); }
     </div>
   </section>
 
-  <footer class="kbd" id="kbd">
+  <footer class="kbd shut" id="kbd">
     <div class="kbhead">
       <strong>Keys</strong>
       <button class="btn sm" id="kPrev" aria-label="Previous patch">&#9664;</button>
@@ -344,7 +346,7 @@ input[type=range].amber::-moz-range-thumb { background: var(--amber); }
       <button class="btn sm" id="kNext" aria-label="Next patch">&#9654;</button>
       <button class="btn sm" id="kOctD" title="[ key">Oct &minus;</button><span id="kOct" style="min-width:2.5ch;text-align:center;color:var(--amber)">C3</span><button class="btn sm" id="kOctU" title="] key">Oct +</button>
       <span>PC: Z-M / Q-I</span><span id="midiSt"></span>
-      <button class="btn sm" id="kShut" style="margin-left:auto">Hide keys</button>
+      <button class="btn sm" id="kShut" style="margin-left:auto">Show keys</button>
     </div>
     <div class="kbwrap"><div class="keys" id="keys"></div></div>
   </footer>
@@ -984,7 +986,7 @@ function drawCycle(cv, waves) {
 const splash = $('#splash'), spCv = $('#spCv'), bootEl = $('#boot'), spGo = $('#spGo'), spPen = $('#spPen'), spH1 = $('#spTitle');
 const TITLE = 'SYSTEM-83', GL = '01#%&@=+*<>/|';
 const spSeq = [7, 0, 2, 6, 3, 5, 1, 4], spCur = new Float32Array(NW * NS), spLay = {};
-let spRun = true, ready = false, spT0 = performance.now(), pen = { x: -1, y: -1, in: false }, titleDone = false, glitchOn = false;
+let bootFinal = '', replay = false, replayTimer = 0, spRun = true, ready = false, spT0 = performance.now(), pen = { x: -1, y: -1, in: false }, titleDone = false, glitchOn = false;
 function spBlend(ts) {
   const seg = 5200, k = ts / seg, i = Math.floor(k) % spSeq.length, j = (i + 1) % spSeq.length, f = k - Math.floor(k), s = f < 0.6 ? 0 : (f - 0.6) / 0.4, e = s * s * (3 - 2 * s);
   const A = eng.tables[spSeq[i]], B = eng.tables[spSeq[j]]; for (let n = 0; n < NW * NS; n++) spCur[n] = A[n] + (B[n] - A[n]) * e;
@@ -1027,6 +1029,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const drumN = new Set(Object.values(eng.drums)).size;
   const L = [['MEMORY TEST', 'mem'], ['WAVE ROM', TNAME.length + ' TABLES x 64 WAVES x 128 BYTES'], ['SAMPLE RAM', eng.slots.length + ' SLOTS  8-BIT'], ['DRUM ROM', drumN + ' VOICES  24 KHZ  8-BIT'],
     ['SEQUENCE', sng ? sng.notes.length + ' NOTES  ' + Math.round(sng.bpm) + ' BPM  ' + fmtT(sng.dur).slice(0, 5) : 'MIDI'], ['LOADING PAGE R', '']];
+  bootFinal = '<b>PLANTSSYSTEM</b> SYSTEM-83 MONITOR  REV 1.0\n' + L.map(([name, info]) => name + ' ' + '.'.repeat(Math.max(2, 22 - name.length)) + ' ' + (info === 'mem' ? '512K' : info) + ' <b>OK</b>\n').join('');
   await sleep(500); let html = '<b>PLANTSSYSTEM</b> SYSTEM-83 MONITOR  REV 1.0\n'; bootEl.innerHTML = html;
   for (const [name, info0] of L) {
     if (started) return; let info = info0; const line = name + ' ' + '.'.repeat(Math.max(2, 22 - name.length)) + ' ';
@@ -1037,6 +1040,23 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   }
   ready = true; spGo.textContent = '> CLICK OR PRESS ANY KEY TO POWER ON'; spGo.classList.add('blink');
 })();
+
+/* ---------- show the splash again (click the SYSTEM-83 logo) ---------- */
+function hideSplash() {
+  if (!replay) return; replay = false; clearTimeout(replayTimer);
+  splash.classList.add('off'); setTimeout(() => { if (!replay) { spRun = false; splash.hidden = true; } }, 1000);
+}
+function showSplash() {
+  if (!started || replay) return; replay = true; relAll();
+  titleDone = false; glitchOn = false; spH1.classList.remove('glitch'); spT0 = performance.now();
+  bootEl.innerHTML = bootFinal || bootEl.innerHTML; spGo.classList.remove('blink'); spGo.textContent = '> SYSTEM-83 READY';
+  splash.classList.remove('off'); splash.hidden = false;
+  for (const el of [$('.sp-stage', splash), $('.sp-rule', splash)]) { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; }
+  if (!spRun) { spRun = true; requestAnimationFrame(spFrame); }
+  replayTimer = setTimeout(hideSplash, 3000);
+}
+$('#brand').addEventListener('click', showSplash);
+$('#brand').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showSplash(); } });
 
 /* ---------- power on ---------- */
 const WORKLET_TAIL = `
@@ -1082,7 +1102,7 @@ async function powerOn() {
   bootChime();
   routePage(); requestAnimationFrame(frame);
 }
-const go = e => { if (e.ctrlKey || e.metaKey || e.altKey) return; if (!started && performance.now() - spT0 > 500) { e.preventDefault(); powerOn(); } };
+const go = e => { if (e.ctrlKey || e.metaKey || e.altKey) return; if (started) { if (replay) hideSplash(); return; } if (!started && performance.now() - spT0 > 500) { e.preventDefault(); powerOn(); } };
 splash.addEventListener('click', go); window.addEventListener('keydown', e => { if (!started) go(e); }, { once: false });
 
 /* ---------- song ---------- */
