@@ -439,13 +439,89 @@ function genDrums() {
   const hat = (len, dec, nz) => { const h = hpN(0.5); return fin(gen(len, t => { let sq = 0; for (const f of SQ) sq += Math.sin(TAU * f * t) >= 0 ? 1 : -1; return (sq / 6 * 0.45 + h() * nz) * Math.exp(-t * dec); })); };
   D[42] = hat(0.15, 65, 0.8); D[44] = hat(0.2, 45, 0.7); D[46] = hat(0.6, 7, 0.8);
   D[49] = hat(1.8, 2.2, 0.9); D[51] = D[49]; D[57] = D[49];
-  return D;
+  /* ---- XG / GM percussion (27-87) ---- */
+  const sn = (f, dec, len) => fin(gen(len, t => Math.sin(TAU * f * t) * Math.exp(-t * dec)));
+  const sw = (f0, f1, k, dec, len) => { let ph = 0; return fin(gen(len, t => { ph += TAU * (f1 + (f0 - f1) * Math.exp(-t * k)) / DR; return Math.sin(ph) * Math.exp(-t * dec); })); };
+  const two = (fa, fb, dec, len, sq) => fin(gen(len, t => { const a = TAU * fa * t, b = TAU * fb * t; return (sq ? (Math.sin(a) >= 0 ? 1 : -1) * 0.5 + (Math.sin(b) >= 0 ? 1 : -1) * 0.5 : Math.sin(a) + Math.sin(b)) * Math.exp(-t * dec); }));
+  const nz = (dec, len, a, att) => { const h = hpN(a); return fin(gen(len, t => h() * Math.exp(-t * dec) * (att ? Math.min(1, t / att) : 1))); };
+  const rat = (n, gap, dec, len) => { const h = hpN(0.3); return fin(gen(len, t => { const ph = (t % gap) / gap; return h() * Math.exp(-ph * 14) * Math.exp(-t * dec); })); };
+  D[27] = sw(2200, 900, 60, 28, 0.1); D[28] = nz(70, 0.09, 0.25); D[29] = fin(gen(0.22, t => (noise() * 0.5 + Math.sin(TAU * (300 + 2500 * t * 4) * t)) * Math.min(1, t * 60) * Math.exp(-t * 9)));
+  D[30] = fin(gen(0.22, t => (noise() * 0.5 + Math.sin(TAU * (1500 - 3000 * t) * t)) * Math.min(1, t * 60) * Math.exp(-t * 9)));
+  D[31] = fin(gen(0.06, t => (Math.sin(TAU * 2600 * t) * 0.6 + noise() * 0.4) * Math.exp(-t * 90))); D[32] = fin(gen(0.03, t => (Math.sin(TAU * 1800 * t) >= 0 ? 1 : -1) * Math.exp(-t * 120)));
+  D[33] = sn(1500, 120, 0.05); D[34] = two(2000, 3010, 9, 0.5);
+  D[52] = hat(1.4, 3.2, 1.0); D[55] = hat(0.9, 5, 0.9); D[53] = fin(gen(0.7, t => (Math.sin(TAU * 2900 * t) + 0.6 * Math.sin(TAU * 4400 * t) + 0.4 * Math.sin(TAU * 6100 * t)) * Math.exp(-t * 6)));
+  { const h = hpN(0.5); D[54] = fin(gen(0.28, t => (h() * 0.7 + (Math.sin(TAU * 7100 * t) >= 0 ? 0.4 : -0.4)) * Math.exp(-t * 14) * Math.min(1, t * 400))); }
+  D[56] = two(560, 845, 12, 0.4, true); D[58] = rat(0.7, 0.045, 3.5, 0.7); D[59] = D[51];
+  D[60] = sw(520, 380, 25, 16, 0.25); D[61] = sw(390, 290, 25, 14, 0.3);
+  D[62] = sw(350, 300, 40, 18, 0.2); D[63] = sw(340, 290, 40, 9, 0.35); D[64] = sw(250, 205, 35, 8, 0.4);
+  D[65] = fin(gen(0.35, t => Math.sin(TAU * 520 * t) * Math.exp(-t * 11) + noise() * Math.exp(-t * 90) * 0.4)); D[66] = fin(gen(0.4, t => Math.sin(TAU * 390 * t) * Math.exp(-t * 10) + noise() * Math.exp(-t * 90) * 0.4));
+  D[67] = two(880, 1330, 14, 0.3); D[68] = two(660, 990, 14, 0.35);
+  D[69] = nz(38, 0.1, 0.5, 0.012); D[70] = nz(55, 0.07, 0.5, 0.008);
+  D[71] = fin(gen(0.18, t => Math.sin(TAU * 2600 * t + Math.sin(TAU * 28 * t) * 1.5) * Math.min(1, t * 90) * Math.exp(-t * 9)));
+  D[72] = fin(gen(0.7, t => Math.sin(TAU * 2500 * t + Math.sin(TAU * 26 * t) * 1.5) * Math.min(1, t * 90) * Math.exp(-t * 2.8)));
+  D[73] = rat(0.12, 0.022, 14, 0.12); D[74] = rat(0.4, 0.03, 4, 0.4);
+  D[75] = sn(2500, 80, 0.1); D[76] = fin(gen(0.12, t => Math.sin(TAU * 1050 * t) * Math.exp(-t * 55) + noise() * Math.exp(-t * 400) * 0.3)); D[77] = fin(gen(0.14, t => Math.sin(TAU * 790 * t) * Math.exp(-t * 48) + noise() * Math.exp(-t * 400) * 0.3));
+  D[78] = sw(260, 520, 18, 12, 0.18); D[79] = sw(240, 640, 6, 5, 0.45);
+  D[80] = two(4500, 6750, 28, 0.2); D[81] = two(4500, 6750, 4, 1.3);
+  D[82] = nz(32, 0.14, 0.45, 0.02); D[83] = fin(gen(0.7, t => (Math.sin(TAU * 3500 * t) + Math.sin(TAU * 5300 * t) * 0.7 + Math.sin(TAU * 7000 * t) * 0.5 + noise() * 0.1) * Math.exp(-t * 6) * (1 + 0.5 * Math.sin(TAU * 40 * t))));
+  D[84] = fin(gen(1.0, t => { let v = 0; for (let k = 0; k < 8; k++) { const t0 = k * 0.045; if (t >= t0) v += Math.sin(TAU * (2300 + k * 280) * (t - t0)) * Math.exp(-(t - t0) * 7); } return v; }));
+  D[85] = fin(gen(0.07, t => (Math.sin(TAU * 1700 * t) * 0.5 + noise() * 0.6) * Math.exp(-t * 90))); D[86] = sw(95, 70, 12, 11, 0.35); D[87] = sw(110, 80, 10, 4.5, 0.8);
+  D[13] = D[82]; D[26] = D[28];
+  /* ---- alternate-kit buffers ---- */
+  const X = { 24: {}, 25: {}, 40: {} };
+  const TOMF = { 41: 80, 43: 100, 45: 125, 47: 155, 48: 190, 50: 235 };
+  { // 24 ELECTRONIC : synth kick / snare / sweeping toms
+    X[24][36] = X[24][35] = fin(gen(0.4, t => { return Math.sin(TAU * (50 * t + 260 * (1 - Math.exp(-t * 55)) / 55)) * Math.exp(-t * 10) + noise() * Math.exp(-t * 400) * 0.3; }));
+    const h = hpN(0.2); X[24][38] = X[24][40] = fin(gen(0.3, t => h() * Math.exp(-t * 14) * 0.9 + Math.sin(TAU * 220 * t) * Math.exp(-t * 40) * 0.5));
+    for (const n in TOMF) X[24][n] = sw(TOMF[n] * 2.4, TOMF[n], 22, 9, 0.4);
+  }
+  { // 25 ANALOG : 808-style
+    X[25][36] = X[25][35] = fin(gen(0.9, t => { return Math.sin(TAU * (48 * t + 120 * (1 - Math.exp(-t * 35)) / 35)) * Math.exp(-t * 3.2) + noise() * Math.exp(-t * 500) * 0.15; }));
+    const h = hpN(0.3); X[25][38] = X[25][40] = fin(gen(0.32, t => Math.sin(TAU * 180 * t) * Math.exp(-t * 22) * 0.55 + Math.sin(TAU * 330 * t) * Math.exp(-t * 28) * 0.3 + h() * Math.exp(-t * 13) * 0.8));
+    X[25][37] = fin(gen(0.07, t => Math.sin(TAU * 1700 * t) * Math.exp(-t * 250) * 0.6 + Math.sin(TAU * 480 * t) * Math.exp(-t * 140)));
+    for (const n in TOMF) X[25][n] = sw(TOMF[n] * 1.45, TOMF[n] * 0.85, 20, 5.5, 0.6);
+    X[25][42] = hat(0.1, 70, 0.9); X[25][44] = hat(0.12, 50, 0.9); X[25][46] = hat(0.5, 8, 0.9);
+    X[25][56] = two(540, 800, 14, 0.5, true); X[25][62] = sw(330, 310, 40, 18, 0.2); X[25][63] = sw(330, 310, 40, 9, 0.35); X[25][64] = sw(235, 220, 35, 9, 0.4);
+    X[25][75] = sn(2500, 90, 0.1); X[25][70] = nz(70, 0.05, 0.5, 0.004);
+  }
+  { // 40 BRUSH : swirled noise snares
+    const h = hpN(0.3);
+    X[40][38] = fin(gen(0.3, t => h() * (1 - Math.exp(-t * 120)) * Math.exp(-t * 13) + Math.sin(TAU * 190 * t) * Math.exp(-t * 45) * 0.12));
+    X[40][40] = fin(gen(0.45, t => h() * Math.sin(Math.PI * Math.min(1, t / 0.45)) * 0.9 * (0.6 + 0.4 * Math.sin(TAU * 18 * t))));
+    X[40][37] = fin(gen(0.08, t => Math.sin(TAU * 1000 * t) * Math.exp(-t * 160) * 0.5 + noise() * Math.exp(-t * 200) * 0.4));
+  }
+  return { D, X };
 }
 const DRUM_META = {
   35: { pan: 0, send: 0.05 }, 36: { pan: 0, send: 0.05 }, 37: { pan: 0.2, send: 0.2 }, 38: { pan: 0, send: 0.75 }, 39: { pan: -0.1, send: 0.8 }, 40: { pan: 0, send: 0.7 },
   41: { pan: -0.5, send: 0.6 }, 42: { pan: 0.3, send: 0 }, 43: { pan: -0.3, send: 0.6 }, 44: { pan: 0.3, send: 0 }, 45: { pan: -0.1, send: 0.6 },
   46: { pan: 0.3, send: 0.05 }, 47: { pan: 0.2, send: 0.6 }, 48: { pan: 0.4, send: 0.6 }, 49: { pan: -0.2, send: 0.2 }, 50: { pan: 0.5, send: 0.6 }, 51: { pan: 0.3, send: 0.1 }, 57: { pan: -0.2, send: 0.2 }
 };
+Object.assign(DRUM_META, {
+  27: { pan: 0, send: 0.2 }, 28: { pan: 0.1, send: 0.2 }, 29: { pan: -0.3, send: 0.2 }, 30: { pan: 0.3, send: 0.2 }, 31: { pan: 0.2, send: 0.05 }, 32: { pan: 0, send: 0.05 }, 33: { pan: 0, send: 0 }, 34: { pan: 0, send: 0.1 },
+  52: { pan: 0.35, send: 0.25 }, 53: { pan: 0.3, send: 0.15 }, 54: { pan: 0.4, send: 0.15 }, 55: { pan: -0.35, send: 0.2 }, 56: { pan: -0.4, send: 0.1 }, 58: { pan: 0.2, send: 0.2 }, 59: { pan: 0.3, send: 0.1 },
+  60: { pan: -0.4, send: 0.2 }, 61: { pan: -0.5, send: 0.2 }, 62: { pan: 0.4, send: 0.2 }, 63: { pan: 0.5, send: 0.2 }, 64: { pan: 0.3, send: 0.2 }, 65: { pan: -0.5, send: 0.2 }, 66: { pan: -0.6, send: 0.2 }, 67: { pan: 0.5, send: 0.15 }, 68: { pan: 0.4, send: 0.15 },
+  69: { pan: -0.3, send: 0.1 }, 70: { pan: 0.4, send: 0.1 }, 71: { pan: 0.2, send: 0.1 }, 72: { pan: 0.2, send: 0.1 }, 73: { pan: -0.4, send: 0.1 }, 74: { pan: -0.4, send: 0.1 }, 75: { pan: 0.3, send: 0.1 }, 76: { pan: 0.5, send: 0.1 }, 77: { pan: 0.4, send: 0.1 },
+  78: { pan: -0.3, send: 0.15 }, 79: { pan: -0.3, send: 0.15 }, 80: { pan: 0.5, send: 0.1 }, 81: { pan: 0.5, send: 0.2 }, 82: { pan: 0.4, send: 0.1 }, 83: { pan: -0.4, send: 0.15 }, 84: { pan: 0, send: 0.25 }, 85: { pan: 0.3, send: 0.1 }, 86: { pan: -0.2, send: 0.2 }, 87: { pan: -0.2, send: 0.3 }
+});
+/* XG / GM2 / GS drum kit numbers (program change on a drum part) -> the kit this engine plays */
+const KIT_IDS = [0, 8, 16, 24, 25, 32, 40, 48];
+const KIT_NAMES = { 0: 'STANDARD', 8: 'ROOM', 16: 'POWER', 24: 'ELECTRONIC', 25: 'ANALOG', 32: 'JAZZ', 40: 'BRUSH', 48: 'CLASSIC' };
+function kitFor(prog) { if (prog > 49) return 0; let k = 0; for (const id of KIT_IDS) if (prog >= id) k = id; return k; }
+const DGRP = { 42: 1, 44: 1, 46: 1, 71: 2, 72: 2, 73: 3, 74: 3, 78: 4, 79: 4, 80: 5, 81: 5 };
+function buildKit(id, D, X) {
+  const K = {}; const alt = X[id] || {};
+  for (const k in D) { const n = +k, m = DRUM_META[n] || { pan: 0, send: 0.15 }; K[n] = { b: alt[n] || D[n], r: 1, g: 1, s: m.send, pan: m.pan, grp: DGRP[n] || 0 }; }
+  const set = (list, f) => { for (const n of list) if (K[n]) f(K[n]); };
+  const KICK = [35, 36], SNR = [37, 38, 39, 40], TOM = [41, 43, 45, 47, 48, 50], HAT = [42, 44, 46], CYM = [49, 51, 52, 53, 55, 57, 59];
+  if (id === 8) { set(TOM, e => e.r *= 0.94); set([38, 39, 40, ...TOM], e => e.s = Math.min(1, e.s + 0.2)); }
+  else if (id === 16) { set(KICK, e => { e.r *= 0.9; e.g *= 1.1; }); set([38, 40], e => { e.r *= 0.88; e.g *= 1.1; }); set(TOM, e => { e.r *= 0.85; e.s = Math.min(1, e.s + 0.15); }); }
+  else if (id === 24) { set(HAT, e => e.r *= 1.1); set(KICK, e => e.g *= 1.05); }
+  else if (id === 32) { set(KICK, e => { e.r *= 1.12; e.g *= 0.8; }); set([38, 40], e => { e.r *= 1.18; e.g *= 0.85; }); set(TOM, e => e.r *= 1.08); set([...HAT, ...CYM], e => e.g *= 0.8); set([38, 39, 40, ...TOM], e => e.s = Math.min(1, e.s + 0.1)); }
+  else if (id === 40) { set(KICK, e => { e.r *= 1.1; e.g *= 0.6; }); set(TOM, e => { e.r *= 1.05; e.g *= 0.7; e.s *= 0.5; }); set([...HAT, ...CYM], e => e.g *= 0.62); set([38, 39, 40], e => e.s = 0.2); }
+  else if (id === 48) { set(KICK, e => { e.r *= 0.95; e.g *= 1.05; }); set([38, 39, 40, ...TOM], e => e.s = 1); }
+  return K;
+}
 
 /* ---------- 8-bit sample ROM (CMI-style) ---------- */
 function genSamples() {
@@ -565,17 +641,30 @@ function parseMidi(d) {
   if (String.fromCharCode(d[0], d[1], d[2], d[3]) !== 'MThd') throw new Error('not a MIDI file');
   const ntr = u16(10), div = u16(12); let p = 14; const ev = [], tempos = [], chName = new Array(16).fill('');
   const vl = () => { let v = 0, b; do { b = d[p++]; v = (v << 7) | (b & 127); } while (b & 128); return v; };
+  let isXG = false, isGS = false, isGM = false;
+  /* SysEx -> synthetic events: kind 5 = reset (a: 1 GM, 2 XG, 3 GS), kind 6 = XG part param (ch = part), kind 7 = XG drum setup (ch = setup, a = note, b = param<<7 | value) */
+  const sysex = (tick, t, x) => {
+    if (x.length >= 5 && x[0] === 0x7E && x[2] === 0x09 && x[3] === 0x01) { isGM = true; ev.push([tick, 1, t, 0, 5, 1, 0]); }
+    else if (x.length >= 8 && x[0] === 0x41 && x[2] === 0x42 && x[3] === 0x12 && x[4] === 0x40 && x[5] === 0x00 && x[6] === 0x7F) { isGS = true; ev.push([tick, 1, t, 0, 5, 3, 0]); }
+    else if (x.length >= 7 && x[0] === 0x43 && (x[1] & 0xF0) === 0x10 && x[2] === 0x4C) {
+      const ah = x[3], am = x[4], al = x[5], v = x[6];
+      if (ah === 0 && am === 0 && al === 0x7E) { isXG = true; ev.push([tick, 1, t, 0, 5, 2, 0]); }
+      else if (ah === 0x08 && am < 16) { isXG = true; ev.push([tick, 1, t, am, 6, al, v & 127]); }
+      else if ((ah === 0x30 || ah === 0x31) && al <= 0x0F) { isXG = true; ev.push([tick, 1, t, ah & 1, 7, am & 127, (al << 7) | (v & 127)]); }
+    }
+  };
   for (let t = 0; t < ntr && p < d.length; t++) {
     if (String.fromCharCode(d[p], d[p + 1], d[p + 2], d[p + 3]) !== 'MTrk') break;
     const end = p + 8 + u32(p + 4); p += 8; let tick = 0, rs = 0, tname = '';
     while (p < end) {
       tick += vl(); let b = d[p];
       if (b === 0xFF) { const ty = d[p + 1]; p += 2; const l = vl(); if (ty === 0x51) tempos.push([tick, (d[p] << 16) | (d[p + 1] << 8) | d[p + 2]]); if (ty === 3) tname = String.fromCharCode.apply(null, d.subarray(p, p + l)); p += l; }
-      else if (b === 0xF0 || b === 0xF7) { p++; p += vl(); }
+      else if (b === 0xF0 || b === 0xF7) { p++; const l = vl(); if (b === 0xF0) sysex(tick, t, d.subarray(p, p + l)); p += l; }
       else {
         if (b & 128) { rs = b; p++; }
         const s = rs & 0xF0, c = rs & 15;
-        if (s === 0xC0 || s === 0xD0) { p++; }
+        if (s === 0xC0) { ev.push([tick, 1, t, c, 4, d[p], 0]); p++; }
+        else if (s === 0xD0) { p++; }
         else {
           const a = d[p], bb = d[p + 1]; p += 2;
           if (s === 0x90 && bb > 0) { ev.push([tick, 2, t, c, 1, a, bb]); if (!chName[c]) chName[c] = tname; }
@@ -593,21 +682,24 @@ function parseMidi(d) {
   const t2s = tk => { let i = seg.length - 1; while (i > 0 && seg[i][0] > tk) i--; return seg[i][1] + (tk - seg[i][0]) * seg[i][2] / div / 1e6; };
   ev.sort((a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]);
   const n = ev.length, time = new Float64Array(n), kind = new Uint8Array(n), ch = new Uint8Array(n), A = new Uint8Array(n), B = new Int16Array(n), notes = [], open = new Map();
-  let dur = 0;
+  let dur = 0; const bm = new Array(16).fill(0), pm = new Array(16).fill(-1), drumCh = new Set(), kits = new Set(), bank127 = new Set();
   for (let i = 0; i < n; i++) {
-    const e = ev[i], t = t2s(e[0]); time[i] = t; kind[i] = e[4]; ch[i] = e[3]; A[i] = e[5]; B[i] = e[6];
+    const e = ev[i], t = t2s(e[0]), ec = e[3];
+    if (e[4] === 2 && e[5] === 0) bm[ec] = e[6]; else if (e[4] === 6 && e[5] === 7) pm[ec] = e[6];
+    const isD = ec === 9 ? pm[ec] !== 0 : (bm[ec] === 127 || pm[ec] > 0);
+    if (e[4] === 4 && isD) kits.add(kitFor(e[5])); if (e[4] === 1 && isD) drumCh.add(ec); if (bm[ec] === 127 && ec !== 9 && e[4] === 1) bank127.add(ec); time[i] = t; kind[i] = e[4]; ch[i] = e[3]; A[i] = e[5]; B[i] = e[6];
     const key = e[3] * 128 + e[5];
     if (e[4] === 1) { const o = { t, d: 0.1, ch: e[3], n: e[5], v: e[6] }; notes.push(o); if (!open.has(key)) open.set(key, []); open.get(key).push(o); if (t > dur) dur = t; }
     else if (e[4] === 0) { const q = open.get(key); if (q && q.length) { const o = q.shift(); o.d = Math.max(0.02, t - o.t); } if (t > dur) dur = t; }
   }
-  return { n, time, kind, ch, a: A, b: B, notes, dur, bpm: 60e6 / tempos[0][1], chName };
+  return { n, time, kind, ch, a: A, b: B, notes, dur, bpm: 60e6 / tempos[0][1], chName, xg: isXG || bank127.size > 0, gs: isGS, gm: isGM, drumCh: [...drumCh].sort((a, b) => a - b), kits: [...kits].sort((a, b) => a - b) };
 }
 
 
 /* ---------- MIDI mutation ---------- */
 function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-function detectScale(notes) {
-  const h = new Float64Array(12); for (const n of notes) if (n.ch !== 9) h[n.n % 12] += Math.min(n.d, 2);
+function detectScale(notes, dc) {
+  const h = new Float64Array(12); for (const n of notes) if (!(dc ? dc.has(n.ch) : n.ch === 9)) h[n.n % 12] += Math.min(n.d, 2);
   const MAJ = [0, 2, 4, 5, 7, 9, 11], MIN = [0, 2, 3, 5, 7, 8, 10]; let best = -1, bs = new Set(MAJ);
   for (let r = 0; r < 12; r++) for (const sc of [MAJ, MIN]) { let v = 0; for (const i of sc) v += h[(r + i) % 12]; v += 0.15 * (h[r] + h[(r + 7) % 12]); if (v > best) { best = v; bs = new Set(sc.map(i => (r + i) % 12)); } }
   return bs;
@@ -617,6 +709,7 @@ function snapScale(n, sc) { if (sc.has(pcOf(n))) return n; for (let d = 1; d < 7
 function stepScale(n, k, sc) { n = snapScale(n, sc); const dir = k > 0 ? 1 : -1; let c = Math.abs(k); while (c > 0) { n += dir; if (sc.has(pcOf(n))) c--; } return n; }
 const DRUM_SWAP = { 38: [39, 40], 39: [38], 40: [38, 39], 42: [44, 46], 44: [42], 46: [42], 41: [43, 45], 43: [41, 45, 47], 45: [43, 47, 48], 47: [45, 48], 48: [47, 45] };
 function mutateSong(src, P, seed, chSet) {
+  const DC = new Set(src.drumCh && src.drumCh.length ? src.drumCh : [9]), isD = c => DC.has(c);
   const rng = mulberry(seed | 0), A = P.amount / 100, bar = 240 / src.bpm, s16 = bar / 16, st = { pitch: 0, shift: 0, drop: 0, ratchet: 0, glitch: 0, swap: 0, ghost: 0 };
   const keep = [], work = [];
   for (const n of src.notes) (chSet.has(n.ch) ? work : keep).push(Object.assign({}, n));
@@ -628,22 +721,22 @@ function mutateSong(src, P, seed, chSet) {
     let maxB = 0; for (const k of m.keys()) if (k > maxB) maxB = k;
     for (let b = 0; b <= maxB; b++) {
       const cur = m.get(b) || [];
-      if (b > 0 && ch !== 9 && cur.length && rng() < G) {
+      if (b > 0 && !isD(ch) && cur.length && rng() < G) {
         st.glitch++;
         if (rng() < 0.5) { for (const n of (m.get(b - 1) || [])) out.push(Object.assign({}, n, { t: n.t + bar })); }
         else for (const n of cur) { const o = n.t - b * bar; out.push(Object.assign({}, n, { t: b * bar + Math.max(0, bar - o - n.d) })); }
-      } else if (b > 0 && ch === 9 && cur.length && rng() < G * 0.5) { st.glitch++; for (const n of (m.get(b - 1) || [])) out.push(Object.assign({}, n, { t: n.t + bar })); }
+      } else if (b > 0 && isD(ch) && cur.length && rng() < G * 0.5) { st.glitch++; for (const n of (m.get(b - 1) || [])) out.push(Object.assign({}, n, { t: n.t + bar })); }
       else for (const n of cur) out.push(n);
     }
   }
   out.sort(cmp);
   // 2. melodic groups
-  const scale = detectScale(src.notes), rg = new Map();
-  for (const n of src.notes) if (n.ch !== 9) { const r = rg.get(n.ch) || [127, 0]; r[0] = Math.min(r[0], n.n); r[1] = Math.max(r[1], n.n); rg.set(n.ch, r); }
+  const scale = detectScale(src.notes, DC), rg = new Map();
+  for (const n of src.notes) if (!isD(n.ch)) { const r = rg.get(n.ch) || [127, 0]; r[0] = Math.min(r[0], n.n); r[1] = Math.max(r[1], n.n); rg.set(n.ch, r); }
   const P_ = P.pitch / 100 * A, R_ = P.rhythm / 100 * A, D_ = P.drop / 100 * A, K_ = P.ratchet / 100 * A, X_ = P.drums / 100 * A, gmap = new Map(), res = [];
   const drumBars = new Set();
   for (const n of out) {
-    if (n.ch === 9) { drumBars.add(Math.floor(n.t / bar)); continue; }
+    if (isD(n.ch)) { drumBars.add(Math.floor(n.t / bar)); continue; }
     const key = n.ch * 100000 + Math.round(n.t * 50); let g = gmap.get(key); const r0 = rg.get(n.ch) || [0, 127], low = (r0[0] + r0[1]) / 2 < 46;
     if (!g) {
       g = { step: 0, oct: 0, dt: 0, drop: false, rat: 0 };
@@ -661,19 +754,19 @@ function mutateSong(src, P, seed, chSet) {
   }
   // 3. drums
   for (const n of out) {
-    if (n.ch !== 9) continue;
+    if (!isD(n.ch)) continue;
     if (rng() < X_ * 0.3 && DRUM_SWAP[n.n]) { const o = DRUM_SWAP[n.n]; n.n = o[Math.floor(rng() * o.length)]; st.swap++; }
     if (rng() < D_ * 0.25 && !(n.n === 36 && (n.t % bar) < 0.02)) { st.drop++; continue; }
     res.push(n);
     if ((n.n === 42 || n.n === 44) && rng() < K_ * 0.5) { res.push(Object.assign({}, n, { t: n.t + s16 / 2, v: Math.max(1, Math.round(n.v * 0.7)) })); st.ratchet++; }
   }
-  if (chSet.has(9)) for (const b of [...drumBars].sort((a, c) => a - c)) for (let sl = 0; sl < 16; sl++) { if (sl % 4 === 0) continue; if (rng() < X_ * 0.035) { res.push({ t: b * bar + sl * s16, d: 0.1, ch: 9, n: 38, v: Math.round(25 + rng() * 25) }); st.ghost++; } }
+  if ([...DC].some(c => chSet.has(c))) for (const b of [...drumBars].sort((a, c) => a - c)) for (let sl = 0; sl < 16; sl++) { if (sl % 4 === 0) continue; if (rng() < X_ * 0.035) { res.push({ t: b * bar + sl * s16, d: 0.1, ch: [...DC][0], n: 38, v: Math.round(25 + rng() * 25) }); st.ghost++; } }
   // 4. velocity + transpose
   const V_ = P.vel / 100 * A * 45, T = P.trans | 0;
-  for (const n of res) { if (V_) n.v = clamp(Math.round(n.v + (rng() - 0.5) * 2 * V_), 1, 127); if (T && n.ch !== 9) n.n = clamp(n.n + T, 0, 127); }
+  for (const n of res) { if (V_) n.v = clamp(Math.round(n.v + (rng() - 0.5) * 2 * V_), 1, 127); if (T && !isD(n.ch)) n.n = clamp(n.n + T, 0, 127); }
   // 5. remove same-pitch overlaps (they would cut each other)
   res.sort((a, b) => a.ch - b.ch || a.n - b.n || a.t - b.t);
-  for (let i = 1; i < res.length; i++) { const p = res[i - 1], c = res[i]; if (c.ch !== 9 && p.ch === c.ch && p.n === c.n && p.t + p.d > c.t - 0.001) p.d = Math.max(0.02, c.t - p.t - 0.003); }
+  for (let i = 1; i < res.length; i++) { const p = res[i - 1], c = res[i]; if (!isD(c.ch) && p.ch === c.ch && p.n === c.n && p.t + p.d > c.t - 0.001) p.d = Math.max(0.02, c.t - p.t - 0.003); }
   const all = keep.concat(res).sort(cmp);
   // 6. event lists (controllers are kept from the source)
   const ev = []; let dur = src.dur;
@@ -682,7 +775,7 @@ function mutateSong(src, P, seed, chSet) {
   ev.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
   const n = ev.length, time = new Float64Array(n), kind = new Uint8Array(n), ch = new Uint8Array(n), A8 = new Uint8Array(n), B16 = new Int16Array(n);
   for (let i = 0; i < n; i++) { const e = ev[i]; time[i] = e[0]; ch[i] = e[2]; kind[i] = e[3]; A8[i] = e[4]; B16[i] = e[5]; }
-  return { n, time, kind, ch, a: A8, b: B16, notes: all, dur, bpm: src.bpm, chName: src.chName, stats: st };
+  return { n, time, kind, ch, a: A8, b: B16, notes: all, dur, bpm: src.bpm, chName: src.chName, stats: st, xg: src.xg, gs: src.gs, gm: src.gm, drumCh: src.drumCh, kits: src.kits };
 }
 
 /* ---------- engine ---------- */
@@ -692,12 +785,12 @@ class Engine {
     this.userA = [1, 0.5, 0.33, 0.25, 0.2, 0.16, 0.14, 0.12, 0, 0, 0, 0, 0, 0, 0, 0];
     this.userB = [0.2, 0, 0.6, 0, 0.8, 0, 0.5, 0, 0.4, 0, 0.3, 0, 0.2, 0, 0.1, 0];
     this.tables = makeTables(this.userA, this.userB);
-    this.drums = genDrums(); this.slots = genSamples(); this.patches = defaultPatches();
-    this.chan = []; for (let i = 0; i < 17; i++) this.chan.push({ patch: DEFAULT_MAP[i] === undefined ? 0 : DEFAULT_MAP[i], mixVol: 1, mixPan: 0, audible: true, cc7: 100, cc11: 127, cc10: 64, bend: 0, mod: 0, sus: false });
+    const gd = genDrums(); this.drums = gd.D; this.alt = gd.X; this.kits = {}; this.slots = genSamples(); this.patches = defaultPatches();
+    this.chan = []; for (let i = 0; i < 17; i++) this.chan.push({ patch: DEFAULT_MAP[i] === undefined ? 0 : DEFAULT_MAP[i], mixVol: 1, mixPan: 0, audible: true, cc7: 100, cc11: 127, cc10: 64, bend: 0, mod: 0, sus: false, drum: false, kit: 0, bm: 0, bl: 0, dsu: 0, nrM: -1, nrL: 0, dn: null });
     this.chan[16].patch = 0;
     this.voices = []; for (let i = 0; i < NV; i++) this.voices.push({ on: false, ch: 0, note: 0, vel: 0, p: null, gate: false, held: false, t: 0, ph1: 0, ph2: 0, sp: 0, aS: 0, aV: 0, fS: 0, fV: 0, wV: 1, lfo: 0, lfo2: 0, y1: 0, y2: 0, y3: 0, y4: 0, g0: 0, wLast: 0, seq: 0 });
-    this.dv = []; for (let i = 0; i < ND; i++) this.dv.push({ on: false, buf: null, pos: 0, g: 0, pl: 0, pr: 0, send: 0, grp: 0, ch: 0, seq: 0 });
-    this.seqN = 0;
+    this.dv = []; for (let i = 0; i < ND; i++) this.dv.push({ on: false, buf: null, pos: 0, g: 0, pl: 0, pr: 0, send: 0, grp: 0, ch: 0, seq: 0, rt: 1, e: 1, ed: 1 });
+    this.seqN = 0; this.dset = [{}, {}]; this.xgOn = false;
     this.song = null; this.playing = false; this.songT = 0; this.ei = 0; this.rate = 1; this.loop = false;
     this.master = 1.5; this.revLvl = 0.5; this.choLvl = 0.55; this.gateLvl = 0.7;
     this.rev = new Reverb(sr, 0.86, 0.35); this.gverb = new Reverb(sr, 0.8, 0.2); this.cho = new Chorus(sr);
@@ -735,6 +828,7 @@ class Engine {
   seek(s) {
     this.allOff(true); this.songT = Math.max(0, s);
     for (const c of this.chan) { c.cc7 = 100; c.cc11 = 127; c.cc10 = 64; c.bend = 0; c.mod = 0; c.sus = false; }
+    this.resetXG();
     const S = this.song; let i = 0;
     if (S) { while (i < S.n && S.time[i] <= this.songT) { if (S.kind[i] >= 2) this.fire(i); i++; } }
     this.ei = i;
@@ -742,19 +836,56 @@ class Engine {
   fire(i) {
     const S = this.song, k = S.kind[i], ch = S.ch[i];
     if (k === 1) this.noteOn(ch, S.a[i], S.b[i]); else if (k === 0) this.noteOff(ch, S.a[i]);
-    else if (k === 2) this.cc(ch, S.a[i], S.b[i]); else this.chan[ch].bend = (S.b[i] - 8192) / 8192 * 2;
+    else if (k === 2) this.cc(ch, S.a[i], S.b[i]); else if (k === 3) this.chan[ch].bend = (S.b[i] - 8192) / 8192 * 2;
+    else if (k === 4) this.prog(ch, S.a[i]);
+    else if (k === 5) this.sysReset(S.a[i]);
+    else if (k === 6) this.xgPart(ch, S.a[i], S.b[i]);
+    else if (k === 7) this.xgDrum(ch, S.a[i], S.b[i] >> 7, S.b[i] & 127);
   }
+  /* --- XG / GS / GM drum state --- */
+  resetXG() { this.dset = [{}, {}]; this.xgOn = false; for (const c of this.chan) { c.drum = false; c.kit = 0; c.bm = 0; c.bl = 0; c.dsu = 0; c.nrM = -1; c.nrL = 0; c.dn = null; } }
+  sysReset(a) { this.resetXG(); this.xgOn = a === 2; }
+  prog(ch, v) {
+    const c = this.chan[ch]; if (ch === 16) return;
+    if (c.bm === 127) { c.drum = true; c.kit = kitFor(v); c.dsu = c.bl === 1 ? 1 : c.dsu; }
+    else if (ch === 9) c.kit = kitFor(v);
+    else if (c.drum && c.bm !== 127) c.drum = false;
+  }
+  xgPart(ch, al, v) {
+    const c = this.chan[ch];
+    if (al === 0x01) c.bm = v; else if (al === 0x02) c.bl = v; else if (al === 0x03) this.prog(ch, v);
+    else if (al === 0x07) { if (v > 0) { c.drum = true; c.dsu = v === 3 ? 1 : 0; } else if (ch !== 9) c.drum = false; }
+    else if (al === 0x0B) c.cc7 = v; else if (al === 0x0E) c.cc10 = v || 64;
+  }
+  drumOv(o, par, v) {
+    switch (par) {
+      case 0: o.pc = (o.pc || 0) + (v - 64); break; case 1: o.pc = (o.pc || 0) + (v - 64) * 0.005; break;
+      case 2: o.lv = v / 127; break; case 3: o.grp = v ? 100 + v : -1; break;
+      case 4: o.pn = v === 0 ? 'r' : (v - 64) / 63; break; case 5: o.rv = clamp(v / 127 * 1.2, 0, 1); break;
+      case 0x0E: o.dec = v; break;
+    }
+  }
+  xgDrum(setup, note, par, v) { const t = this.dset[setup & 1]; let o = t[note]; if (!o) o = t[note] = {}; if (par === 0 || par === 1) { if (par === 0) o.pcC = v - 64; else o.pcF = (v - 64) * 0.005; o.pc = (o.pcC || 0) + (o.pcF || 0); } else this.drumOv(o, par, v); }
+  nrpn(ch, v) {
+    const c = this.chan[ch]; if (!c.drum && c.patch !== undefined && !(this.patches[c.patch] && this.patches[c.patch].kind === 'drum')) return;
+    const m = c.nrM, n = c.nrL; if (m < 0x14 || m > 0x1F) return; if (!c.dn) c.dn = {}; let o = c.dn[n]; if (!o) o = c.dn[n] = {};
+    if (m === 0x18) { o.pcC = v - 64; o.pc = (o.pcC || 0) + (o.pcF || 0); } else if (m === 0x19) { o.pcF = (v - 64) * 0.005; o.pc = (o.pcC || 0) + (o.pcF || 0); }
+    else if (m === 0x1A) this.drumOv(o, 2, v); else if (m === 0x1C) this.drumOv(o, 4, v); else if (m === 0x1D) this.drumOv(o, 5, v); else if (m === 0x17) this.drumOv(o, 0x0E, v);
+  }
+  kitMap(id) { return this.kits[id] || (this.kits[id] = buildKit(id, this.drums, this.alt)); }
   cc(ch, n, v) {
     const c = this.chan[ch];
-    if (n === 7) c.cc7 = v; else if (n === 11) c.cc11 = v; else if (n === 10) c.cc10 = v; else if (n === 1) c.mod = v;
+    if (n === 0) c.bm = v; else if (n === 32) c.bl = v; else if (n === 99) c.nrM = v; else if (n === 98) c.nrL = v; else if (n === 101 || n === 100) c.nrM = -1; else if (n === 6) this.nrpn(ch, v);
+    else if (n === 7) c.cc7 = v; else if (n === 11) c.cc11 = v; else if (n === 10) c.cc10 = v; else if (n === 1) c.mod = v;
     else if (n === 64) { const on = v >= 64; if (c.sus && !on) { for (const x of this.voices) if (x.on && x.ch === ch && x.held) { x.held = false; x.aS = 3; x.fS = 3; } } c.sus = on; }
     else if (n === 123 || n === 120) { for (const x of this.voices) if (x.on && x.ch === ch) { x.gate = false; x.aS = 3; x.fS = 3; } }
   }
   chanGain(c) { return c.audible ? c.mixVol * (c.cc7 / 127) * (c.cc11 / 127) : 0; }
   noteOn(ch, note, vel) {
     const c = this.chan[ch]; if (!c.audible) return;
-    const p = this.patches[c.patch]; if (!p) return; const vl = vel / 127;
+    let p = this.patches[c.patch]; if (!p) return; const vl = vel / 127;
     if (p.kind === 'drum') return this.drumOn(ch, note, vl, p, c);
+    if (c.drum) { const dp = this.patches.find(q => q.kind === 'drum'); if (dp) return this.drumOn(ch, note, vl, dp, c); }
     let v = null, oldest = null;
     for (const x of this.voices) { if (!x.on) { v = x; break; } if (!oldest || (x.aS === 3 && oldest.aS !== 3) || (x.aS === oldest.aS && x.seq < oldest.seq)) oldest = x; }
     if (!v) v = oldest;
@@ -767,16 +898,23 @@ class Engine {
     for (const v of this.voices) if (v.on && v.ch === ch && v.note === note && v.gate) { v.gate = false; if (c.sus) v.held = true; else { v.aS = 3; v.fS = 3; } }
   }
   drumOn(ch, note, vl, p, c) {
-    const buf = this.drums[note]; if (!buf) return; const meta = DRUM_META[note] || { pan: 0, send: 0 };
-    const grp = (note === 46) ? 1 : 0;
-    if (note === 42 || note === 44 || note === 46) for (const d of this.dv) if (d.on && d.grp === 1) d.on = false;
+    const e = this.kitMap(c.kit | 0)[note]; if (!e) return;
+    const so = this.dset[c.dsu & 1][note], no = c.dn && c.dn[note];
+    let rate = e.r, lv = 1, pan = e.pan, send = e.s, grp = e.grp, dec = 64;
+    for (const o of [so, no]) if (o) {
+      if (o.pc) rate *= Math.pow(2, o.pc / 12); if (o.lv !== undefined) lv *= o.lv;
+      if (o.pn !== undefined) pan = o.pn === 'r' ? Math.random() * 2 - 1 : o.pn; if (o.rv !== undefined) send = o.rv;
+      if (o.grp !== undefined) grp = o.grp < 0 ? 0 : o.grp; if (o.dec !== undefined) dec = o.dec;
+    }
+    if (grp > 0) for (const d of this.dv) if (d.on && d.grp === grp && d.ch === ch) d.on = false;
     let d = null, old = null;
     for (const x of this.dv) { if (!x.on) { d = x; break; } if (!old || x.seq < old.seq) old = x; }
     if (!d) d = old;
-    const pn = clamp(meta.pan + c.mixPan + (c.cc10 - 64) / 64, -1, 1), ang = (pn + 1) * Math.PI / 4;
-    d.on = true; d.buf = buf; d.pos = 0; d.grp = grp; d.ch = ch; d.seq = ++this.seqN;
-    d.g = (0.3 + 0.7 * vl) * this.chanGain(c) * p.vol * 0.9; d.pl = Math.cos(ang) * 1.414; d.pr = Math.sin(ang) * 1.414; d.send = meta.send;
-    if (meta.send >= 0.5 && vl > 0.3) { this.gv = 1; this.gateT = Math.floor(this.sr * 0.17); }
+    const pn = clamp(pan + c.mixPan + (c.cc10 - 64) / 64, -1, 1), ang = (pn + 1) * Math.PI / 4;
+    d.on = true; d.buf = e.b; d.pos = 0; d.grp = grp; d.ch = ch; d.seq = ++this.seqN; d.rt = rate; d.e = 1;
+    d.ed = dec < 64 ? Math.exp(-(64 - dec) / 64 * 30 / this.sr) : 1;
+    d.g = (0.3 + 0.7 * vl) * this.chanGain(c) * p.vol * 0.9 * e.g * lv; d.pl = Math.cos(ang) * 1.414; d.pr = Math.sin(ang) * 1.414; d.send = send;
+    if (send >= 0.5 && vl > 0.3) { this.gv = 1; this.gateT = Math.floor(this.sr * 0.17); }
   }
   /* --- audio --- */
   process(L, R, n) {
@@ -881,7 +1019,7 @@ class Engine {
       const d = this.dv[di]; if (!d.on) continue; const buf = d.buf; let pos = d.pos, pk = 0;
       for (let i = 0; i < m; i++) {
         const idx = pos | 0; if (idx >= buf.length) { d.on = false; break; }
-        const s = buf[idx] * d.g; pos += step; bL[i] += s * d.pl; bR[i] += s * d.pr; bG[i] += s * d.send; const a = s < 0 ? -s : s; if (a > pk) pk = a;
+        const s = buf[idx] * d.g * d.e; pos += step * d.rt; d.e *= d.ed; bL[i] += s * d.pl; bR[i] += s * d.pr; bG[i] += s * d.send; const a = s < 0 ? -s : s; if (a > pk) pk = a;
       }
       d.pos = pos; if (pk > this.meter[d.ch]) this.meter[d.ch] = pk;
     }
@@ -899,7 +1037,7 @@ class Engine {
   }
 }
 Engine.parseMidi = parseMidi; Engine.mutateSong = mutateSong; Engine.makeTables = makeTables; Engine.defaultPatches = defaultPatches; Engine.DEF = DEF; Engine.TABLE_NAMES = TABLE_NAMES;
-Engine.DEFAULT_MAP = DEFAULT_MAP; Engine.NW = NW; Engine.NS = NS;
+Engine.DEFAULT_MAP = DEFAULT_MAP; Engine.KIT_NAMES = KIT_NAMES; Engine.kitFor = kitFor; Engine.NW = NW; Engine.NS = NS;
 G.Engine = Engine;
 if (typeof module !== 'undefined' && module.exports) module.exports = Engine;
 })(typeof globalThis !== 'undefined' ? globalThis : self);
@@ -1026,8 +1164,8 @@ function b64ToBytes(b) { const s = atob(b), a = new Uint8Array(s.length); for (l
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 (async function bootSeq() {
   let sng = null; try { if (MIDI_B64) sng = E.parseMidi(b64ToBytes(MIDI_B64)); } catch (e) {}
-  const drumN = new Set(Object.values(eng.drums)).size;
-  const L = [['MEMORY TEST', 'mem'], ['WAVE ROM', TNAME.length + ' TABLES x 64 WAVES x 128 BYTES'], ['SAMPLE RAM', eng.slots.length + ' SLOTS  8-BIT'], ['DRUM ROM', drumN + ' VOICES  24 KHZ  8-BIT'],
+  const drumN = new Set([...Object.values(eng.drums), ...Object.values(eng.alt).flatMap(o => Object.values(o))]).size;
+  const L = [['MEMORY TEST', 'mem'], ['WAVE ROM', TNAME.length + ' TABLES x 64 WAVES x 128 BYTES'], ['SAMPLE RAM', eng.slots.length + ' SLOTS  8-BIT'], ['DRUM ROM', drumN + ' VOICES  8 KITS  8-BIT'],
     ['SEQUENCE', sng ? sng.notes.length + ' NOTES  ' + Math.round(sng.bpm) + ' BPM  ' + fmtT(sng.dur).slice(0, 5) : 'AWAITING MIDI FILE'], ['LOADING PAGE R', '']];
   bootFinal = '<b>PLANTSSYSTEM</b> SYSTEM-83 MONITOR  REV 1.0\n' + L.map(([name, info]) => name + ' ' + '.'.repeat(Math.max(2, 22 - name.length)) + ' ' + (info === 'mem' ? '512K' : info) + ' <b>OK</b>\n').join('');
   await sleep(500); let html = '<b>PLANTSSYSTEM</b> SYSTEM-83 MONITOR  REV 1.0\n'; bootEl.innerHTML = html;
@@ -1120,15 +1258,22 @@ async function openMidiFile(f) {
   if (!started) return; const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (ev === 'dragover') { if (e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files')) e.preventDefault(); return; }
   e.preventDefault(); if (f && /\.midi?$/i.test(f.name)) openMidiFile(f);
 }));
+const isDr = ch => song && song.drumCh && song.drumCh.length ? song.drumCh.includes(ch) : ch === 9;
+function songTag(sg) {
+  const kn = E.KIT_NAMES, ks = (sg.kits || []).map(k => kn[k]);
+  let t = sg.xg ? ' · XG' : sg.gs ? ' · GS' : sg.gm ? ' · GM' : '';
+  if (ks.length && (sg.xg || sg.gs || sg.gm || ks.some(k => k !== 'STANDARD'))) t += ' · KIT ' + ks.join(' / ');
+  return t;
+}
 function loadSong(bytes, name) {
   try { song = E.parseMidi(bytes); } catch (e) { $('#songInfo').innerHTML = '<span class="err">Could not read that MIDI file.</span>'; return; }
   songBytes = bytes; songName = name;
   songOrig = song; mutActive = false; sendSong(song, false);
   activeCh = [...new Set(song.notes.map(n => n.ch))].sort((a, b) => a - b);
   song.lo = 24; song.hi = 84; let dl = Infinity, dh = -1;
-  for (const n of song.notes) if (n.ch !== 9) { dl = Math.min(dl, n.n); dh = Math.max(dh, n.n); }
+  for (const n of song.notes) if (!isDr(n.ch)) { dl = Math.min(dl, n.n); dh = Math.max(dh, n.n); }
   if (dh >= 0) { song.lo = Math.max(0, dl - 2); song.hi = Math.min(127, dh + 2); }
-  $('#songInfo').textContent = name + '  ·  ' + song.notes.length + ' notes · ' + Math.round(song.bpm) + ' BPM · ' + fmtT(song.dur).slice(0, 5);
+  $('#songInfo').textContent = name + '  ·  ' + song.notes.length + ' notes · ' + Math.round(song.bpm) + ' BPM · ' + fmtT(song.dur).slice(0, 5) + songTag(song);
   buildMini(); buildMixer(); updateClock(0); mutCh = new Set(activeCh); buildMutChips(); syncMut();
 }
 function buildMini() {
@@ -1149,8 +1294,9 @@ function buildMixer() {
     const s = chs[ch], el = document.createElement('div'); el.className = 'strip'; el.dataset.ch = ch; el.style.setProperty('--c', CHCOL[ch % 16]);
     el.innerHTML = '<span class="led"></span><span class="trk"></span><select class="psel" aria-label="Patch"></select><button class="btn sm bm" aria-pressed="false" title="Mute">M</button><button class="btn sm bs amber" aria-pressed="false" title="Solo">S</button>' +
       '<input type="range" class="vol" min="0" max="150" value="' + Math.round(s.vol * 100) + '" aria-label="Volume"><input type="range" class="pan" min="-100" max="100" value="' + Math.round(s.pan * 100) + '" aria-label="Pan"><span class="vu"><i></i></span>';
-    $('.trk', el).textContent = (ch + 1) + ' ' + (ch === 9 ? 'Drums' : (song.chName[ch] || 'Ch ' + (ch + 1)));
+    $('.trk', el).textContent = (ch + 1) + ' ' + (isDr(ch) ? 'Drums' : (song.chName[ch] || 'Ch ' + (ch + 1)));
     const sel = $('.psel', el); eng.patches.forEach((p, i) => sel.add(new Option(p.name, i))); sel.value = s.patch;
+    if (isDr(ch) && ch !== 9) { const di = eng.patches.findIndex(p => p.kind === 'drum'); if (di >= 0) { sel.value = di; sel.disabled = true; sel.title = 'XG drum part (bank 127)'; } }
     sel.onchange = () => { s.patch = +sel.value; sendChan(ch); sel.blur(); };
     $('.vol', el).oninput = e => { s.vol = e.target.value / 100; sendChan(ch); };
     $('.pan', el).oninput = e => { s.pan = e.target.value / 100; sendChan(ch); };
@@ -1170,7 +1316,8 @@ function refreshAud() {
 
 /* ---------- roll ---------- */
 const rollCv = $('#roll'), miniCv = $('#mini');
-const DROW = { 36: 0, 35: 0, 38: 1, 40: 1, 37: 1, 39: 2, 42: 3, 44: 3, 46: 4, 41: 5, 43: 5, 45: 5, 47: 5, 48: 5, 50: 5, 49: 6, 51: 6, 57: 6 };
+const DROW = { 36: 0, 35: 0, 38: 1, 40: 1, 37: 1, 39: 2, 42: 3, 44: 3, 46: 4, 41: 5, 43: 5, 45: 5, 47: 5, 48: 5, 50: 5, 49: 6, 51: 6, 57: 6, 52: 6, 53: 6, 55: 6, 59: 6 };
+const drow = n => DROW[n] !== undefined ? DROW[n] : (n >= 13 && n <= 90 ? 7 : undefined);
 let dragT = null;
 function drawRoll() {
   const { c, w: W, h: H } = fit(rollCv); c.fillStyle = css('--bg'); c.fillRect(0, 0, W, H);
@@ -1190,7 +1337,7 @@ function drawRoll() {
     const n = N[i]; if (n.t + n.d < t0) continue;
     const x = (n.t - t0) * pxs, w = Math.max(2, n.d * pxs - 1), on = tNow >= n.t && tNow < n.t + n.d && playing;
     c.fillStyle = CHCOL[n.ch % 16];
-    if (n.ch === 9) { const r = DROW[n.n]; if (r === undefined) continue; c.globalAlpha = on ? 1 : 0.8; c.fillRect(x, laneBot + 8 + r * 3.5, 3, 3); }
+    if (isDr(n.ch)) { const r = drow(n.n); if (r === undefined) continue; c.globalAlpha = on ? 1 : 0.8; c.fillRect(x, laneBot + 8 + r * 3.2, 3, 2.6); }
     else { c.globalAlpha = on ? 1 : 0.62; const y = laneTop + (song.hi - n.n) * rh; if (on) { c.shadowColor = c.fillStyle; c.shadowBlur = 8; } c.fillRect(x, y, w, Math.max(2, rh - 1)); c.shadowBlur = 0; }
   }
   c.globalAlpha = 1;
@@ -1471,7 +1618,7 @@ function applyMut() {
   if (!songOrig) return; mutActive = true;
   const ns = E.mutateSong(songOrig, MUT, mutSeed, mutCh); song = ns; calcRange(song); sendSong(song, true); buildMini(); syncMut();
 }
-function calcRange(sg) { sg.lo = 24; sg.hi = 84; let dl = Infinity, dh = -1; for (const n of sg.notes) if (n.ch !== 9) { dl = Math.min(dl, n.n); dh = Math.max(dh, n.n); } if (dh >= 0) { sg.lo = Math.max(0, dl - 2); sg.hi = Math.min(127, dh + 2); } }
+function calcRange(sg) { sg.lo = 24; sg.hi = 84; let dl = Infinity, dh = -1; for (const n of sg.notes) if (!(sg.drumCh && sg.drumCh.length ? sg.drumCh.includes(n.ch) : n.ch === 9)) { dl = Math.min(dl, n.n); dh = Math.max(dh, n.n); } if (dh >= 0) { sg.lo = Math.max(0, dl - 2); sg.hi = Math.min(127, dh + 2); } }
 function later() { clearTimeout(mutTimer); mutTimer = setTimeout(applyMut, 120); }
 function syncMut() {
   $('#mSeed').textContent = mutActive ? 'seed ' + mutSeed : 'original';
@@ -1483,7 +1630,7 @@ function buildMutChips() {
   const host = $('#mChips'); host.innerHTML = '';
   for (const ch of activeCh) {
     const b = document.createElement('button'); b.className = 'btn sm'; b.style.borderColor = CHCOL[ch % 16]; b.style.color = CHCOL[ch % 16];
-    b.textContent = (ch + 1) + ' ' + (ch === 9 ? 'Drums' : (song.chName[ch] || 'Ch ' + (ch + 1)));
+    b.textContent = (ch + 1) + ' ' + (isDr(ch) ? 'Drums' : (song.chName[ch] || 'Ch ' + (ch + 1)));
     const paint = () => { const on = mutCh.has(ch); b.setAttribute('aria-pressed', on); b.style.background = on ? CHCOL[ch % 16] : 'transparent'; b.style.color = on ? 'var(--bg)' : CHCOL[ch % 16]; }; paint();
     b.onclick = () => { if (mutCh.has(ch)) mutCh.delete(ch); else mutCh.add(ch); paint(); if (mutActive) later(); };
     host.appendChild(b);
